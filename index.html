@@ -35,7 +35,11 @@
       </div>
       <div class="canvas-wrap">
         <canvas id="mapCanvas" aria-label="Mapa esquemático. Toque para reposicionar o marcador azul."></canvas>
-        <div class="map-hint">Toque no mapa para corrigir sua posição</div>
+        <div class="map-hint" id="mapHint">Toque no mapa para corrigir sua posição</div>
+        <div class="area-tools hidden" id="areaTools">
+          <button id="cancelAreaBtn" class="small-button">Cancelar área</button>
+          <button id="finishAreaBtn" class="primary-button" disabled>Desenhe 3 pontos</button>
+        </div>
       </div>
       <div class="legend"><span><i class="dot blue"></i>Você</span><span><i class="dot gold"></i>Ponto marcado</span><span><i class="line-swatch"></i>Percurso</span></div>
     </section>
@@ -52,12 +56,13 @@
         <button id="rightBtn" class="control-button" disabled><span>↷</span>Virei à direita</button>
         <button id="stepBtn" class="control-button" disabled><span>＋</span>Registrar passo</button>
         <button id="markBtn" class="control-button" disabled><span>⚑</span>Marcar local</button>
+        <button id="areaBtn" class="control-button" disabled><span>▱</span>Desenhar área</button>
         <button id="floorUpBtn" class="control-button" disabled><span>↑</span>Subi de andar</button>
         <button id="floorDownBtn" class="control-button" disabled><span>↓</span>Desci de andar</button>
         <button id="undoBtn" class="control-button" disabled><span>↩</span>Desfazer movimento</button>
         <button id="finishBtn" class="control-button danger" disabled><span>■</span>Finalizar percurso</button>
       </div>
-      <div id="sensorMessage" class="sensor-message">O registro automático de passos depende dos sensores e das permissões do aparelho. Você também pode registrar passos manualmente.</div>
+      <div id="sensorMessage" class="sensor-message">Com permissão, o celular estima passos e acompanha os giros; você pode corrigir a direção nos botões. Também dá para desenhar áreas tocando seus cantos no mapa.</div>
     </section>
 
     <details class="saved-section" open>
@@ -78,8 +83,8 @@
   </main>
   <dialog id="markerDialog" class="marker-dialog">
     <form method="dialog" id="markerForm">
-      <h2>Marcar este local</h2>
-      <p>Escolha um nome fácil de reconhecer. O ponto será salvo no pavimento atual.</p>
+      <h2 id="markerDialogTitle">Marcar este local</h2>
+      <p id="markerDialogHelp">Escolha um nome fácil de reconhecer. O ponto será salvo no pavimento atual.</p>
       <label for="markerName">Nome do local</label>
       <input id="markerName" maxlength="60" required placeholder="Ex.: corredor da área vermelha">
       <label for="markerColor">Cor</label>
