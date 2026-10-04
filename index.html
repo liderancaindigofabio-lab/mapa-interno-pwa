@@ -93,7 +93,7 @@
       <input id="markerName" maxlength="60" required placeholder="Ex.: corredor da área vermelha">
       <label for="markerColor">Cor</label>
       <select id="markerColor"><option value="#d2a84a">Dourado</option><option value="#dc5b57">Vermelho</option><option value="#5f91d4">Azul</option><option value="#58a879">Verde</option><option value="#986bc5">Roxo</option></select>
-      <div class="dialog-actions"><button value="cancel" class="secondary-button">Cancelar</button><button id="saveMarkerBtn" value="save" class="primary-button">Salvar ponto</button></div>
+      <div class="dialog-actions"><button value="cancel" formnovalidate class="secondary-button">Cancelar</button><button id="saveMarkerBtn" value="save" class="primary-button">Salvar ponto</button></div>
     </form>
   </dialog>
   <dialog id="calibrationDialog" class="marker-dialog">
@@ -105,7 +105,7 @@
       <p class="calibration-count">Passos contados: <strong id="calibrationStepCount">0</strong></p>
       <button type="button" id="calibrationManualStepBtn" class="secondary-button manual-step-button">+ Contar passo manual</button>
       <div class="dialog-actions">
-        <button id="cancelCalibrationBtn" type="submit" value="cancel" class="secondary-button">Cancelar</button>
+        <button id="cancelCalibrationBtn" type="submit" value="cancel" formnovalidate class="secondary-button">Cancelar</button>
         <button id="calibrationActionBtn" type="submit" value="start" class="primary-button">Iniciar calibração</button>
       </div>
     </form>
