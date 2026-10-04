@@ -1,35 +1,33 @@
 # Mapa Interno — protótipo
 
-Aplicativo web progressivo (PWA) para desenhar um mapa esquemático de percursos internos por pavimento. É um protótipo de uso pessoal: ainda não tem planta do local, posicionamento absoluto ou orientação confiável de navegação.
+Aplicativo web progressivo (PWA) para desenhar um mapa esquemático de percursos internos por pavimento. Ainda não contém planta do local, posicionamento absoluto ou roteamento automático até destinos.
 
 ## O que já funciona
 
-- Registra passos estimados pelo acelerômetro, quando o aparelho e o navegador permitem; há também um botão para registrar passos manualmente.
-- Converte passos em deslocamento aproximado em um mapa esquemático e permite calibrar a passada caminhando por uma distância conhecida.
-- Acompanha giros pela orientação do celular quando o sensor está disponível; botões permitem corrigir curvas de 90 graus. Também registra subida/descida, desfaz o último movimento e pausa/finaliza.
-- Permite desenhar áreas fechadas marcando seus vértices no mapa e dando nome e cor; durante o desenho, também dá para arrastar e usar pinça para explorar a grade sem perder o contorno. Salva pontos individuais.
-- Toque no mapa para corrigir a posição atual; pontos nomeados com cores para marcar locais.
-- Três pavimentos genéricos, com posição aproximada mantida ao trocar de nível.
-- Guarda os dados apenas no armazenamento local do navegador; permite exportar e importar cópia JSON.
-- Mapa em tela cheia com arrastar, pinça de zoom e botão para voltar à posição atual; tocar em um ponto salvo abre o local no mapa.
-- Interface responsiva e cache para abertura offline depois da primeira visita.
+- Por padrão, só registra passos quando a pessoa toca no botão. A estimativa pelo acelerômetro é opcional e vem desligada, para evitar que mexer no telefone conte como caminhada.
+- Converte passos em deslocamento aproximado e permite calibrar a distância por passo com a distância medida e a contagem real de passos.
+- Acompanha giros pela orientação do celular quando o sensor está disponível; botões permitem corrigir curvas. Também registra mudanças de pavimento.
+- Permite desenhar áreas fechadas tocando os vértices, dar nome e cor, além de salvar pontos individuais.
+- Tela cheia com arrastar, pinça de zoom, centralização na posição e acesso aos pontos salvos.
+- O mapa, as áreas e as posições ficam no armazenamento local do navegador; permite exportar/importar JSON.
+- O botão “Limpar traçado de teste” apaga os percursos e a contagem, preservando os pontos/áreas salvos.
 
 ## Limitações importantes
 
-- A direção inicial é relativa ao início do percurso. O sensor pode acompanhar giros, mas pode falhar ou variar com a posição do celular; faça o teste no aparelho e use os botões para corrigir. Não usa GPS interno, Wi-Fi, Bluetooth, câmera ou beacons.
-- A detecção de passos pode contar passos a mais ou a menos; distância, forma e escala do desenho ainda são aproximadas, mesmo após calibração. Corrija o ponto atual ou calibre em um trecho medido.
-- Os pavimentos aparecem como “Pavimento 1, 2 e 3”; ainda não há editor para renomeá-los nem planta real do local.
-- Não calcula caminho até um destino ainda e não deve ser usado como orientação clínica, operacional, de evacuação ou emergência.
-- Os dados ficam no navegador/aparelho atual. Limpar dados do navegador pode apagá-los; faça exportação de segurança.
+- O caminho é uma representação aproximada em uma grade. A precisão depende da calibração e de correções manuais; sensores de passo e direção podem variar por aparelho.
+- A direção inicial é relativa ao início do percurso; o app não usa GPS interno, Wi-Fi, Bluetooth, câmera nem beacons.
+- Os pavimentos aparecem como “Pavimento 1, 2 e 3”; não há editor para renomeá-los nem planta real do local.
+- Ainda não calcula caminho até um destino e não deve ser usado como orientação clínica, operacional, de evacuação ou emergência.
+- Dados ficam no navegador/aparelho atual. Limpar os dados do navegador pode apagá-los; exporte uma cópia de segurança.
 
-## Como testar
+## Como usar
 
-1. Abra `index.html` em um navegador para testar controles e mapa; sem HTTPS/localhost, o navegador pode bloquear sensores e instalação PWA.
-2. Para usar sensores e instalar como app, publique em hospedagem HTTPS autorizada ou rode um servidor local. O navegador pedirá permissão de movimento quando o percurso começar.
-3. Para calibrar, escolha um corredor reto de distância conhecida (de preferência 10 m ou mais), pressione “Calibrar passada”, informe a distância, inicie e caminhe até o fim; revise a contagem automática/manual e salve.
-4. Pressione “Começar percurso”; o mapa acompanha passos e giros estimados. Corrija curvas nos botões e toque para reposicionar se notar desvio. Use “Subi/Desci” ao trocar de pavimento.
-5. “Desenhar área” permite tocar os cantos do contorno e salvar um nome/cor. Durante o traçado, arraste para explorar a grade e use pinça ou +/− para zoom sem perder os vértices já marcados. “Tela cheia” abre a vista do mapa; arraste para passear, use pinça ou +/− para zoom e “Minha posição” para voltar. Nos pontos salvos, “Ver” centraliza o mapa. Exporte JSON para cópia.
+1. Abra o app em HTTPS/Chrome no Android. Para instalar, use “Instalar aplicativo” ou o menu do navegador.
+2. Para calibrar, escolha um corredor reto de distância conhecida (de preferência 10 m ou mais), caminhe contando seus passos, toque em “Calibrar passada” e informe distância e número de passos.
+3. Deixe “Estimar passos automaticamente” desligado no começo. Durante o percurso, toque em “Registrar passo” a cada passo; vire o telefone junto com o corpo e use os botões de direção se o indicador não acompanhar.
+4. Use “Desenhar área” e toque nos cantos do contorno; finalize com nome e cor. “Tela cheia” abre o mapa para passear, arrastar e dar zoom. “Minha posição” centraliza novamente; “Ver” em um ponto salvo abre aquele local.
+5. Se o percurso de teste ficou errado, “Limpar traçado de teste” apaga apenas o traçado e a contagem, mantendo áreas e pontos.
 
 ## Privacidade e segurança
 
-O app não envia dados para um servidor e não grava áudio, vídeo, nomes de pacientes ou informações clínicas. Antes de mapear qualquer hospital, confirme autorização institucional e restrinja o mapa às áreas que você pode registrar. Não use o aparelho enquanto realiza atendimento ou em deslocamento inseguro.
+O app não envia dados para servidor e não grava áudio, vídeo, nomes de pacientes ou informações clínicas. Antes de mapear um hospital, confirme autorização institucional e restrinja o mapeamento às áreas permitidas. Não use o aparelho enquanto realiza atendimento ou em deslocamento inseguro.
