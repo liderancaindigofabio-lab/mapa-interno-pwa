@@ -7,8 +7,8 @@
   const MAX_ZOOM = 90;
   const MIN_ZOOM = 8;
   const nativeSensors = window.AndroidSensors && typeof window.AndroidSensors.startTracking === 'function' ? window.AndroidSensors : null;
-  const nativeStepAvailable = Boolean(nativeSensors && nativeSensors.hasStepSensor());
-  const defaultData = () => ({ version: 1, floor: 0, x: 0, y: 0, heading: 0, stepMeters: DEFAULT_STEP_METERS, autoSteps: nativeStepAvailable, recording: false, events: [], markers: [], stepCount: 0 });
+  const nativeAndroidApp = Boolean(nativeSensors);
+  const defaultData = () => ({ version: 1, floor: 0, x: 0, y: 0, heading: 0, stepMeters: DEFAULT_STEP_METERS, autoSteps: nativeAndroidApp, recording: false, events: [], markers: [], stepCount: 0 });
   let data = loadData();
   let viewFloor = data.floor;
   let viewCenter = { x: data.x, y: data.y };
@@ -42,7 +42,7 @@
       const restored = { ...defaultData(), ...parsed, recording: false };
       const step = Number(restored.stepMeters);
       restored.stepMeters = Number.isFinite(step) ? Math.min(MAX_STEP_METERS, Math.max(MIN_STEP_METERS, step)) : DEFAULT_STEP_METERS;
-      restored.autoSteps = typeof parsed.autoSteps === 'boolean' ? parsed.autoSteps : nativeStepAvailable;
+      restored.autoSteps = typeof parsed.autoSteps === 'boolean' ? parsed.autoSteps : nativeAndroidApp;
       return restored;
     } catch (_) { return defaultData(); }
   }
@@ -97,7 +97,7 @@
   async function requestMotion() {
     if (nativeSensors) {
       nativeSensors.startTracking(Boolean(data.autoSteps));
-      const stepMsg = data.autoSteps ? (nativeStepAvailable ? 'contagem automática pelo sensor nativo do Android' : 'este aparelho não informou um sensor de passos nativo') : 'contagem automática de passos desligada';
+      const stepMsg = data.autoSteps ? 'contagem automática pelo sensor nativo do Android; verificando permissão e disponibilidade' : 'contagem automática de passos desligada';
       el('sensorMessage').textContent = `${stepMsg}; orientação acompanhada pelos sensores do Android quando disponíveis.`;
       return;
     }
@@ -353,8 +353,8 @@
     el('autoStepsToggle').disabled = data.recording;
     if (nativeSensors) {
       el('autoStepsText').textContent = 'Contar passos automaticamente';
-      el('autoStepsNote').textContent = nativeStepAvailable ? '(sensor nativo do Android)' : '(sensor de passos não detectado)';
-      if (!data.recording) el('sensorMessage').textContent = nativeStepAvailable ? 'App Android: a contagem automática usa o sensor nativo de passos do aparelho; faça um teste parado antes de mapear.' : 'Este aparelho não informou sensor nativo de passos; a contagem automática não está disponível neste app.';
+      el('autoStepsNote').textContent = '(sensor nativo; checado ao iniciar)';
+      if (!data.recording) el('sensorMessage').textContent = 'App Android: ao iniciar o percurso, o app verifica o sensor nativo e solicita permissão se necessário. Teste parado antes de mapear.';
     } else {
       el('autoStepsText').textContent = 'Estimar passos automaticamente';
       el('autoStepsNote').textContent = '(experimental; pode contar movimento do celular)';
@@ -376,7 +376,7 @@
         if (!parsed || parsed.version !== 1 || !Array.isArray(parsed.events) || !Array.isArray(parsed.markers)) throw new Error('bad');
         if (!window.confirm('Importar este arquivo e substituir os dados salvos neste aparelho?')) return;
         data = { ...defaultData(), ...parsed, recording: false };
-        if (nativeSensors && nativeStepAvailable) data.autoSteps = true;
+        if (nativeAndroidApp) data.autoSteps = true;
         data.floor = Math.max(0, Math.min(2, Number(data.floor) || 0));
         const step = Number(data.stepMeters); data.stepMeters = Number.isFinite(step) ? Math.min(MAX_STEP_METERS, Math.max(MIN_STEP_METERS, step)) : DEFAULT_STEP_METERS;
         viewFloor = data.floor; viewCenter = { x: data.x, y: data.y }; followUser = true; undoStack = []; save();

@@ -141,10 +141,6 @@ class MainActivity : Activity(), SensorEventListener {
             reportStatus("Orientação do Android ativa; contagem automática de passos desligada.")
             return
         }
-        if (stepDetector == null && stepCounter == null) {
-            reportStatus("Este aparelho não disponibilizou um sensor nativo de passos. O percurso não contará passos automaticamente.")
-            return
-        }
         if (!hasRecognitionPermission()) {
             if (!permissionRequestPending) {
                 permissionRequestPending = true
@@ -153,7 +149,13 @@ class MainActivity : Activity(), SensorEventListener {
             reportStatus("Autorize a atividade física para o Android contar passos automaticamente.")
             return
         }
-        val sensor = stepDetector ?: stepCounter
+        val detector = stepDetector
+        val counter = stepCounter
+        if (detector == null && counter == null) {
+            reportStatus("Este aparelho não disponibilizou um sensor nativo de passos. O percurso não contará passos automaticamente.")
+            return
+        }
+        val sensor = detector ?: counter
         if (sensor != null) {
             registerSensor(sensor, SensorManager.SENSOR_DELAY_NORMAL)
             reportStatus(if (stepDetector != null) "Sensor nativo de passos ativo." else "Sensor de passos ativo; este aparelho pode atualizar a contagem com atraso.")
@@ -274,7 +276,6 @@ class MainActivity : Activity(), SensorEventListener {
     }
 
     inner class NativeSensorsBridge {
-        @JavascriptInterface fun hasStepSensor(): Boolean = stepDetector != null || stepCounter != null
         @JavascriptInterface fun startTracking(useStepSensor: Boolean) = runOnUiThread { startTrackingOnUi(useStepSensor) }
         @JavascriptInterface fun stopTracking() = runOnUiThread { stopTrackingOnUi() }
         @JavascriptInterface fun saveJsonFile(filename: String, content: String) = launchSaveJsonFile(filename, content)
