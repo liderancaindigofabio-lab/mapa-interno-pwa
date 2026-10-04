@@ -6,7 +6,8 @@ Aplicativo web progressivo (PWA) para desenhar um mapa esquemático de percursos
 
 - Registra passos estimados pelo acelerômetro, quando o aparelho e o navegador permitem; há também um botão para registrar passos manualmente.
 - Converte passos em deslocamento aproximado (0,65 m por passo) em um mapa esquemático.
-- Botões para indicar curvas de 90 graus, subir/descer pavimento, desfazer o último movimento e finalizar/pausar.
+- Acompanha giros pela orientação do celular quando o sensor está disponível; botões permitem corrigir curvas de 90 graus. Também registra subida/descida, desfaz o último movimento e pausa/finaliza.
+- Permite desenhar áreas fechadas marcando seus vértices no mapa e dando nome e cor, além de salvar pontos individuais.
 - Toque no mapa para corrigir a posição atual; pontos nomeados com cores para marcar locais.
 - Três pavimentos genéricos, com posição aproximada mantida ao trocar de nível.
 - Guarda os dados apenas no armazenamento local do navegador; permite exportar e importar cópia JSON.
@@ -14,7 +15,7 @@ Aplicativo web progressivo (PWA) para desenhar um mapa esquemático de percursos
 
 ## Limitações importantes
 
-- A direção inicial é arbitrária; as curvas são informadas manualmente. Não usa GPS interno, Wi-Fi, Bluetooth, câmera, beacons ou localização do hospital.
+- A direção inicial é relativa ao início do percurso. O sensor pode acompanhar giros, mas pode falhar ou variar com a posição do celular; faça o teste no aparelho e use os botões para corrigir. Não usa GPS interno, Wi-Fi, Bluetooth, câmera ou beacons.
 - A detecção de passos pode contar passos a mais ou a menos; distância, forma e escala do desenho são aproximadas. Use o toque no mapa para corrigir.
 - Os pavimentos aparecem como “Pavimento 1, 2 e 3”; ainda não há editor para renomeá-los nem planta real do local.
 - Não calcula caminho até um destino ainda e não deve ser usado como orientação clínica, operacional, de evacuação ou emergência.
