@@ -6,7 +6,7 @@
   const MAX_STEP_METERS = 1.25;
   const MAX_ZOOM = 90;
   const MIN_ZOOM = 8;
-  const defaultData = () => ({ version: 1, floor: 0, x: 0, y: 0, heading: 0, stepMeters: DEFAULT_STEP_METERS, recording: false, events: [], markers: [], stepCount: 0 });
+  const defaultData = () => ({ version: 1, floor: 0, x: 0, y: 0, heading: 0, stepMeters: DEFAULT_STEP_METERS, autoSteps: false, recording: false, events: [], markers: [], stepCount: 0 });
   let data = loadData();
   let viewFloor = data.floor;
   let viewCenter = { x: data.x, y: data.y };
@@ -22,9 +22,6 @@
   let compassOffset = null;
   let areaVertices = null;
   let pendingShape = 'point';
-  let calibrationActive = false;
-  let calibrationSteps = 0;
-  let calibrationDistance = 0;
   let deferredInstall = null;
   const activePointers = new Map();
   let gesture = null;
@@ -43,6 +40,7 @@
       const restored = { ...defaultData(), ...parsed, recording: false };
       const step = Number(restored.stepMeters);
       restored.stepMeters = Number.isFinite(step) ? Math.min(MAX_STEP_METERS, Math.max(MIN_STEP_METERS, step)) : DEFAULT_STEP_METERS;
+      restored.autoSteps = parsed.autoSteps === true;
       return restored;
     } catch (_) { return defaultData(); }
   }
@@ -70,12 +68,6 @@
     drawMap();
   }
   function addStep() {
-    if (calibrationActive) {
-      calibrationSteps += 1;
-      el('calibrationStepCount').textContent = String(calibrationSteps);
-      el('calibrationHelp').textContent = `Continue caminhando pelo trecho medido. Passos contados: ${calibrationSteps}.`;
-      return;
-    }
     if (!data.recording) return;
     remember();
     data.x += Math.sin(data.heading) * data.stepMeters;
@@ -101,10 +93,10 @@
     requestMotion();
   }
   async function requestMotion() {
-    let motionAllowed = true;
+    let motionAllowed = data.autoSteps;
     let orientationAllowed = true;
     try {
-      if ('DeviceMotionEvent' in window && typeof window.DeviceMotionEvent.requestPermission === 'function') {
+      if (data.autoSteps && 'DeviceMotionEvent' in window && typeof window.DeviceMotionEvent.requestPermission === 'function') {
         motionAllowed = await window.DeviceMotionEvent.requestPermission() === 'granted';
       }
     } catch (_) { motionAllowed = false; }
@@ -113,18 +105,18 @@
         orientationAllowed = await window.DeviceOrientationEvent.requestPermission() === 'granted';
       }
     } catch (_) { orientationAllowed = false; }
-    if (motionAllowed && 'DeviceMotionEvent' in window && !motionReady) {
+    if (data.autoSteps && motionAllowed && 'DeviceMotionEvent' in window && !motionReady) {
       window.addEventListener('devicemotion', onMotion, { passive: true }); motionReady = true;
     }
     if (orientationAllowed && 'DeviceOrientationEvent' in window && !orientationReady) {
       window.addEventListener('deviceorientation', onOrientation, { passive: true }); orientationReady = true;
     }
-    const stepMsg = motionReady ? 'passos estimados pelo sensor' : 'passos manuais';
+    const stepMsg = data.autoSteps && motionReady ? 'passos estimados pelo sensor (experimental)' : 'contagem manual de passos, para evitar movimentos falsos';
     const turnMsg = orientationReady ? 'giros acompanhados pela orientação do celular; corrija pelos botões se precisar.' : 'giros registrados pelos botões de virar.';
-    el('sensorMessage').textContent = `Registro: ${stepMsg}; ${turnMsg} A distância por passo pode ser calibrada.`;
+    el('sensorMessage').textContent = `${stepMsg}; ${turnMsg}`;
   }
   function onMotion(event) {
-    if (!data.recording && !calibrationActive) return;
+    if (!data.recording || !data.autoSteps) return;
     const a = event.acceleration;
     const g = event.accelerationIncludingGravity;
     let magnitude = null;
@@ -228,7 +220,7 @@
     const count = areaVertices.length;
     el('finishAreaBtn').disabled = count < 3;
     el('finishAreaBtn').textContent = count < 3 ? `Marque ${3-count} ponto${3-count===1?'':'s'}` : `Nomear área (${count} pontos)`;
-    el('mapHint').textContent = 'Arraste ou use pinça para explorar; toque para marcar o contorno da área';
+    el('mapHint').textContent = 'Toque no mapa para marcar o contorno da área';
   }
   function undo() {
     if (areaVertices && areaVertices.length) { areaVertices.pop(); renderAreaTools(); drawMap(); setStatus('Último ponto do contorno removido'); return; }
@@ -335,7 +327,9 @@
     el('stepSizeLabel').textContent = `Passo ${data.stepMeters.toFixed(2).replace('.', ',')} m`;
     el('startBtn').textContent = data.recording ? 'Pausar percurso' : (data.events.length && data.events[data.events.length - 1].type !== 'finish' ? 'Continuar percurso' : 'Começar percurso');
     for (const id of ['leftBtn','rightBtn','stepBtn','markBtn','areaBtn','floorUpBtn','floorDownBtn','undoBtn','finishBtn']) el(id).disabled = !data.recording;
-    el('stepCalBtn').disabled = data.recording || calibrationActive;
+    el('stepCalBtn').disabled = data.recording;
+    el('autoStepsToggle').checked = data.autoSteps;
+    el('autoStepsToggle').disabled = data.recording;
     setStatus(data.recording ? 'Registrando percurso' : 'Pronto para começar', data.recording);
     renderAreaTools(); renderMarkers(); drawMap();
   }
@@ -361,43 +355,25 @@
   }
   function openCalibration() {
     if (data.recording) { setStatus('Pause o percurso antes de calibrar a passada.'); return; }
-    calibrationActive = false; calibrationSteps = 0; calibrationDistance = 0;
     el('calibrationDistance').value = '10';
-    el('calibrationDistance').disabled = false;
-    el('calibrationActionBtn').disabled = false;
-    el('calibrationStepCount').textContent = '0';
-    el('calibrationHelp').textContent = 'Caminhe por um trecho medido. O sistema conta seus passos e ajusta a escala do mapa.';
-    el('calibrationActionBtn').value = 'start'; el('calibrationActionBtn').textContent = 'Iniciar calibração';
-    el('calibrationManualStepBtn').disabled = true;
+    el('calibrationStepCount').value = '';
+    el('calibrationHelp').textContent = 'Meça um trecho reto, caminhe contando seus passos e informe os dois valores. O celular parado não contará movimentos como passos.';
     el('calibrationDialog').showModal();
   }
-  function updateCalibrationSteps() { el('calibrationStepCount').textContent = String(calibrationSteps); }
-  async function handleCalibrationSubmit(event) {
+  function handleCalibrationSubmit(event) {
     event.preventDefault();
-    const action = event.submitter ? event.submitter.value : 'start';
-    if (action === 'cancel') {
-      calibrationActive = false; el('calibrationDialog').close(); render(); return;
+    const action = event.submitter ? event.submitter.value : 'save';
+    if (action === 'cancel') { el('calibrationDialog').close(); return; }
+    const distance = Number(el('calibrationDistance').value);
+    const steps = Number(el('calibrationStepCount').value);
+    if (!Number.isFinite(distance) || distance < 1 || distance > 500) { el('calibrationHelp').textContent = 'Informe uma distância entre 1 e 500 metros.'; return; }
+    if (!Number.isInteger(steps) || steps < 2 || steps > 2000) { el('calibrationHelp').textContent = 'Informe quantos passos você realmente deu (de 2 a 2.000).'; return; }
+    const measuredStep = distance / steps;
+    if (measuredStep < MIN_STEP_METERS || measuredStep > MAX_STEP_METERS) {
+      el('calibrationHelp').textContent = `O resultado (${measuredStep.toFixed(2)} m por passo) parece fora do esperado. Confira a distância e a contagem.`; return;
     }
-    if (action === 'start') {
-      calibrationDistance = Number(el('calibrationDistance').value);
-      if (!Number.isFinite(calibrationDistance) || calibrationDistance < 1 || calibrationDistance > 500) { el('calibrationHelp').textContent = 'Informe uma distância entre 1 e 500 metros.'; return; }
-      calibrationSteps = 0; calibrationActive = true; updateCalibrationSteps();
-      el('calibrationDistance').disabled = true;
-      el('calibrationManualStepBtn').disabled = false;
-      el('calibrationActionBtn').value = 'finish'; el('calibrationActionBtn').textContent = 'Concluir e salvar';
-      el('calibrationHelp').textContent = `Caminhe os ${calibrationDistance} m medidos com o celular. Mantenha esta tela aberta; se o sensor falhar, conte os passos manualmente.`;
-      requestMotion(); return;
-    }
-    if (action === 'finish') {
-      if (calibrationSteps < 2) { el('calibrationHelp').textContent = 'Conte pelo menos 2 passos antes de concluir; use o botão manual se precisar.'; return; }
-      const measuredStep = calibrationDistance / calibrationSteps;
-      if (measuredStep < MIN_STEP_METERS || measuredStep > MAX_STEP_METERS) {
-        el('calibrationHelp').textContent = `Resultado ${measuredStep.toFixed(2)} m/passo fora do intervalo permitido. Confira a distância ou os passos.`; return;
-      }
-      data.stepMeters = round(measuredStep); calibrationActive = false;
-      el('calibrationDistance').disabled = false; el('calibrationManualStepBtn').disabled = true;
-      el('calibrationDialog').close(); save(); setStatus(`Passada calibrada: ${data.stepMeters.toFixed(2).replace('.', ',')} m`);
-    }
+    data.stepMeters = round(measuredStep);
+    el('calibrationDialog').close(); save(); setStatus(`Passada calibrada: ${data.stepMeters.toFixed(2).replace('.', ',')} m`);
   }
   function setMapExpanded(expanded) {
     el('mapCard').classList.toggle('expanded', expanded);
@@ -413,6 +389,7 @@
   }
   function distanceBetween(a,b) { return Math.hypot(a.x-b.x,a.y-b.y); }
   function onPointerDown(event) {
+    if (areaVertices) return;
     canvas.setPointerCapture(event.pointerId);
     activePointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
     if (activePointers.size === 1) gesture = { type:'pan', lastX:event.clientX, lastY:event.clientY, moved:false };
@@ -421,7 +398,7 @@
     }
   }
   function onPointerMove(event) {
-    if (!activePointers.has(event.pointerId)) return;
+    if (!activePointers.has(event.pointerId) || areaVertices) return;
     activePointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
     if (activePointers.size >= 2) {
       const pts=[...activePointers.values()];
@@ -461,8 +438,7 @@
   el('undoBtn').addEventListener('click', undo);
   el('stepCalBtn').addEventListener('click', openCalibration);
   el('calibrationForm').addEventListener('submit', handleCalibrationSubmit);
-  el('cancelCalibrationBtn').addEventListener('click', () => { calibrationActive = false; el('calibrationDialog').close(); render(); });
-  el('calibrationManualStepBtn').addEventListener('click', () => { if (calibrationActive) { calibrationSteps += 1; updateCalibrationSteps(); el('calibrationHelp').textContent = `Passos contados: ${calibrationSteps}. Continue até completar a distância medida.`; } });
+  el('autoStepsToggle').addEventListener('change', e => { if (data.recording) { e.target.checked = data.autoSteps; return; } data.autoSteps = e.target.checked; save(); setStatus(data.autoSteps ? 'Contagem automática experimental ativada; confira os passos' : 'Contagem automática desligada; modo manual preciso'); });
   el('finishBtn').addEventListener('click', () => { if (!window.confirm('Finalizar este percurso? O traçado continuará salvo.')) return; data.recording = false; data.events.push(currentPoint('finish')); save(); setStatus('Percurso finalizado', false); });
   el('floorSelect').addEventListener('change', e => { if (areaVertices) { e.target.value = String(data.floor); setStatus('Finalize ou cancele o desenho da área antes de trocar de pavimento.'); return; } viewFloor = Number(e.target.value); followUser = viewFloor === data.floor; if (followUser) viewCenter={x:data.x,y:data.y}; drawMap(); });
   el('zoomIn').addEventListener('click', () => { zoom = Math.min(MAX_ZOOM, zoom + 8); drawMap(); });
@@ -485,7 +461,6 @@
     if (viewFloor !== data.floor) { setStatus('Volte ao pavimento atual para corrigir sua posição.'); return; }
     correctPosition(x,y);
   });
-  el('cancelMarkerBtn').addEventListener('click', () => el('markerDialog').close());
   el('markerForm').addEventListener('submit', e => {
     e.preventDefault();
     if (e.submitter && e.submitter.value === 'cancel') { el('markerDialog').close(); return; }
@@ -494,6 +469,7 @@
   });
   el('exportBtn').addEventListener('click', exportData);
   el('importInput').addEventListener('change', e => { if (e.target.files && e.target.files[0]) importData(e.target.files[0]); });
+  el('clearTrackBtn').addEventListener('click', () => { if (!window.confirm('Apagar os traçados e a contagem de passos, mantendo os pontos e áreas salvos?')) return; data.events=[]; data.stepCount=0; data.x=0; data.y=0; data.heading=0; data.floor=0; data.recording=false; viewFloor=0; viewCenter={x:0,y:0}; followUser=true; undoStack=[]; cancelArea(); save(); setStatus('Traçado apagado; pontos e áreas preservados'); });
   el('clearBtn').addEventListener('click', () => { if (!window.confirm('Apagar permanentemente os percursos e pontos salvos neste aparelho? Exporte uma cópia antes se quiser guardar.')) return; localStorage.removeItem(KEY); data=defaultData(); viewFloor=0; viewCenter={x:0,y:0}; followUser=true; undoStack=[]; cancelArea(); save(); setStatus('Dados apagados'); });
   window.addEventListener('resize', resizeCanvas);
   window.addEventListener('orientationchange', () => setTimeout(resizeCanvas,200));
