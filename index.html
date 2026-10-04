@@ -66,7 +66,8 @@
         <button id="stepCalBtn" class="control-button"><span>↔</span>Calibrar passada</button>
         <button id="finishBtn" class="control-button danger" disabled><span>■</span>Finalizar percurso</button>
       </div>
-      <div id="sensorMessage" class="sensor-message">Com permissão, o celular estima passos e acompanha os giros; você pode corrigir a direção nos botões. Também dá para desenhar áreas tocando seus cantos no mapa.</div>
+      <label class="sensor-toggle"><input id="autoStepsToggle" type="checkbox"> Estimar passos automaticamente <small>(experimental; pode contar movimento do celular)</small></label>
+      <div id="sensorMessage" class="sensor-message">Modo preciso: a contagem automática está desligada. Toque em “Registrar passo” a cada passo; os giros continuam sendo acompanhados pelo sensor, se disponível.</div>
     </section>
 
     <details class="saved-section" open>
@@ -78,7 +79,8 @@
       <button id="exportBtn" class="secondary-button">Exportar cópia JSON</button>
       <label class="secondary-button import-label" for="importInput">Importar cópia</label>
       <input id="importInput" type="file" accept="application/json,.json" hidden>
-      <button id="clearBtn" class="text-button">Apagar dados deste aparelho</button>
+      <button id="clearTrackBtn" class="text-button">Limpar traçado de teste e passos (manter pontos)</button>
+      <button id="clearBtn" class="text-button">Apagar todos os dados deste aparelho</button>
     </section>
 
     <footer class="disclaimer">
@@ -93,20 +95,21 @@
       <input id="markerName" maxlength="60" required placeholder="Ex.: corredor da área vermelha">
       <label for="markerColor">Cor</label>
       <select id="markerColor"><option value="#d2a84a">Dourado</option><option value="#dc5b57">Vermelho</option><option value="#5f91d4">Azul</option><option value="#58a879">Verde</option><option value="#986bc5">Roxo</option></select>
-      <div class="dialog-actions"><button id="cancelMarkerBtn" type="button" class="secondary-button">Cancelar</button><button id="saveMarkerBtn" value="save" class="primary-button">Salvar ponto</button></div>
+      <div class="dialog-actions"><button value="cancel" class="secondary-button">Cancelar</button><button id="saveMarkerBtn" value="save" class="primary-button">Salvar ponto</button></div>
     </form>
   </dialog>
   <dialog id="calibrationDialog" class="marker-dialog">
     <form method="dialog" id="calibrationForm">
       <h2>Calibrar distância do passo</h2>
-      <p id="calibrationHelp">Caminhe por um trecho medido. O sistema conta seus passos e ajusta a escala do mapa.</p>
+      <p id="calibrationHelp">Meça um trecho reto, caminhe contando seus passos e informe os dois valores. O celular parado não contará movimentos como passos.</p>
       <label for="calibrationDistance">Distância do trecho (metros)</label>
       <input id="calibrationDistance" type="number" min="1" max="500" step="0.5" value="10" required>
-      <p class="calibration-count">Passos contados: <strong id="calibrationStepCount">0</strong></p>
-      <button type="button" id="calibrationManualStepBtn" class="secondary-button manual-step-button">+ Contar passo manual</button>
+      <label for="calibrationStepCount">Passos que você deu</label>
+      <input id="calibrationStepCount" type="number" min="2" max="2000" step="1" placeholder="Ex.: 14" required>
+      <p class="calibration-count">Escala nova = distância ÷ passos. Calibrar antes de mapear dá melhor resultado.</p>
       <div class="dialog-actions">
-        <button id="cancelCalibrationBtn" type="button" class="secondary-button">Cancelar</button>
-        <button id="calibrationActionBtn" type="submit" value="start" class="primary-button">Iniciar calibração</button>
+        <button id="cancelCalibrationBtn" type="submit" value="cancel" class="secondary-button">Cancelar</button>
+        <button id="calibrationActionBtn" type="submit" value="save" class="primary-button">Salvar calibração</button>
       </div>
     </form>
   </dialog>
