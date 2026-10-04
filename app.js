@@ -156,6 +156,7 @@
     el('markerName').value = '';
     el('markerDialogTitle').textContent = shape === 'area' ? 'Nomear esta área' : 'Marcar este local';
     el('markerDialogHelp').textContent = shape === 'area' ? 'Dê um nome à área que você contornou. Ela será salva no pavimento atual.' : 'Escolha um nome fácil de reconhecer. O ponto será salvo no pavimento atual.';
+    el('saveMarkerBtn').textContent = shape === 'area' ? 'Salvar área' : 'Salvar ponto';
     if (typeof el('markerDialog').showModal === 'function') el('markerDialog').showModal();
     else {
       const label = window.prompt(shape === 'area' ? 'Nome desta área?' : 'Nome deste local?');
