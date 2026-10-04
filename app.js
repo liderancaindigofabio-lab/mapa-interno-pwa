@@ -473,6 +473,8 @@
   canvas.addEventListener('pointermove', onPointerMove);
   canvas.addEventListener('pointerup', onPointerUp);
   canvas.addEventListener('pointercancel', onPointerUp);
+  canvas.addEventListener('wheel', e => { if (!el('mapCard').classList.contains('expanded')) return; e.preventDefault(); zoom=Math.min(MAX_ZOOM,Math.max(MIN_ZOOM,zoom*(e.deltaY<0?1.12:0.89))); drawMap(); }, {passive:false});
+  window.addEventListener('keydown', e => { if (e.key === 'Escape' && el('mapCard').classList.contains('expanded')) setMapExpanded(false); });
   canvas.addEventListener('click', e => {
     if (suppressClick) { suppressClick=false; return; }
     const r=canvas.getBoundingClientRect();
