@@ -24,14 +24,16 @@
       <span aria-hidden="true">🔒</span><span>Mapa e registros ficam salvos somente neste aparelho.</span>
     </section>
 
-    <section class="map-card" aria-label="Mapa do percurso">
+    <section id="mapCard" class="map-card" aria-label="Mapa do percurso">
       <div class="map-toolbar">
         <label for="floorSelect">Pavimento</label>
         <select id="floorSelect" aria-label="Selecionar pavimento">
           <option value="0">Pavimento 1</option><option value="1">Pavimento 2</option><option value="2">Pavimento 3</option>
         </select>
-        <button id="zoomOut" class="small-button" aria-label="Diminuir zoom">−</button>
-        <button id="zoomIn" class="small-button" aria-label="Aumentar zoom">+</button>
+        <button id="zoomOut" class="small-button" aria-label="Diminuir zoom" title="Diminuir zoom">−</button>
+        <button id="zoomIn" class="small-button" aria-label="Aumentar zoom" title="Aumentar zoom">+</button>
+        <button id="recenterBtn" class="small-button" aria-label="Minha posição" title="Centralizar em mim">◎</button>
+        <button id="fullscreenBtn" class="small-button" aria-label="Abrir mapa em tela cheia" title="Tela cheia">⛶</button>
       </div>
       <div class="canvas-wrap">
         <canvas id="mapCanvas" aria-label="Mapa esquemático. Toque para reposicionar o marcador azul."></canvas>
@@ -47,6 +49,7 @@
     <section class="status-row" aria-live="polite">
       <div><span class="status-dot" id="statusDot"></span><span id="statusText">Pronto para começar</span></div>
       <span id="stepText">0 passos</span>
+      <span id="stepSizeLabel">Passo 0,65 m</span>
     </section>
 
     <section class="controls" aria-label="Controles do percurso">
@@ -60,6 +63,7 @@
         <button id="floorUpBtn" class="control-button" disabled><span>↑</span>Subi de andar</button>
         <button id="floorDownBtn" class="control-button" disabled><span>↓</span>Desci de andar</button>
         <button id="undoBtn" class="control-button" disabled><span>↩</span>Desfazer movimento</button>
+        <button id="stepCalBtn" class="control-button"><span>↔</span>Calibrar passada</button>
         <button id="finishBtn" class="control-button danger" disabled><span>■</span>Finalizar percurso</button>
       </div>
       <div id="sensorMessage" class="sensor-message">Com permissão, o celular estima passos e acompanha os giros; você pode corrigir a direção nos botões. Também dá para desenhar áreas tocando seus cantos no mapa.</div>
@@ -90,6 +94,20 @@
       <label for="markerColor">Cor</label>
       <select id="markerColor"><option value="#d2a84a">Dourado</option><option value="#dc5b57">Vermelho</option><option value="#5f91d4">Azul</option><option value="#58a879">Verde</option><option value="#986bc5">Roxo</option></select>
       <div class="dialog-actions"><button value="cancel" class="secondary-button">Cancelar</button><button id="saveMarkerBtn" value="save" class="primary-button">Salvar ponto</button></div>
+    </form>
+  </dialog>
+  <dialog id="calibrationDialog" class="marker-dialog">
+    <form method="dialog" id="calibrationForm">
+      <h2>Calibrar distância do passo</h2>
+      <p id="calibrationHelp">Caminhe por um trecho medido. O sistema conta seus passos e ajusta a escala do mapa.</p>
+      <label for="calibrationDistance">Distância do trecho (metros)</label>
+      <input id="calibrationDistance" type="number" min="1" max="500" step="0.5" value="10" required>
+      <p class="calibration-count">Passos contados: <strong id="calibrationStepCount">0</strong></p>
+      <button type="button" id="calibrationManualStepBtn" class="secondary-button manual-step-button">+ Contar passo manual</button>
+      <div class="dialog-actions">
+        <button id="cancelCalibrationBtn" type="submit" value="cancel" class="secondary-button">Cancelar</button>
+        <button id="calibrationActionBtn" type="submit" value="start" class="primary-button">Iniciar calibração</button>
+      </div>
     </form>
   </dialog>
   <script src="app.js" defer></script>
