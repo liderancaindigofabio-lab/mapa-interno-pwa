@@ -461,6 +461,7 @@
   el('undoBtn').addEventListener('click', undo);
   el('stepCalBtn').addEventListener('click', openCalibration);
   el('calibrationForm').addEventListener('submit', handleCalibrationSubmit);
+  el('cancelCalibrationBtn').addEventListener('click', () => { calibrationActive = false; el('calibrationDialog').close(); render(); });
   el('calibrationManualStepBtn').addEventListener('click', () => { if (calibrationActive) { calibrationSteps += 1; updateCalibrationSteps(); el('calibrationHelp').textContent = `Passos contados: ${calibrationSteps}. Continue até completar a distância medida.`; } });
   el('finishBtn').addEventListener('click', () => { if (!window.confirm('Finalizar este percurso? O traçado continuará salvo.')) return; data.recording = false; data.events.push(currentPoint('finish')); save(); setStatus('Percurso finalizado', false); });
   el('floorSelect').addEventListener('change', e => { if (areaVertices) { e.target.value = String(data.floor); setStatus('Finalize ou cancele o desenho da área antes de trocar de pavimento.'); return; } viewFloor = Number(e.target.value); followUser = viewFloor === data.floor; if (followUser) viewCenter={x:data.x,y:data.y}; drawMap(); });
@@ -484,6 +485,7 @@
     if (viewFloor !== data.floor) { setStatus('Volte ao pavimento atual para corrigir sua posição.'); return; }
     correctPosition(x,y);
   });
+  el('cancelMarkerBtn').addEventListener('click', () => el('markerDialog').close());
   el('markerForm').addEventListener('submit', e => {
     e.preventDefault();
     if (e.submitter && e.submitter.value === 'cancel') { el('markerDialog').close(); return; }
