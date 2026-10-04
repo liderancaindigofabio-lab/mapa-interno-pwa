@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#123b32">
+  <meta name="description" content="Protótipo privado para registrar e corrigir percursos internos. Os dados ficam neste aparelho.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <title>Mapa Interno</title>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand-mark" aria-hidden="true">↗</div>
+      <div><h1>Mapa Interno</h1><p>Seu percurso, corrigido por você</p></div>
+      <button id="installBtn" class="icon-button hidden" aria-label="Instalar aplicativo" title="Instalar">⇩</button>
+    </header>
+
+    <section class="privacy-note" aria-label="Privacidade">
+      <span aria-hidden="true">🔒</span><span>Mapa e registros ficam salvos somente neste aparelho.</span>
+    </section>
+
+    <section class="map-card" aria-label="Mapa do percurso">
+      <div class="map-toolbar">
+        <label for="floorSelect">Pavimento</label>
+        <select id="floorSelect" aria-label="Selecionar pavimento">
+          <option value="0">Pavimento 1</option><option value="1">Pavimento 2</option><option value="2">Pavimento 3</option>
+        </select>
+        <button id="zoomOut" class="small-button" aria-label="Diminuir zoom">−</button>
+        <button id="zoomIn" class="small-button" aria-label="Aumentar zoom">+</button>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="mapCanvas" aria-label="Mapa esquemático. Toque para reposicionar o marcador azul."></canvas>
+        <div class="map-hint">Toque no mapa para corrigir sua posição</div>
+      </div>
+      <div class="legend"><span><i class="dot blue"></i>Você</span><span><i class="dot gold"></i>Ponto marcado</span><span><i class="line-swatch"></i>Percurso</span></div>
+    </section>
+
+    <section class="status-row" aria-live="polite">
+      <div><span class="status-dot" id="statusDot"></span><span id="statusText">Pronto para começar</span></div>
+      <span id="stepText">0 passos</span>
+    </section>
+
+    <section class="controls" aria-label="Controles do percurso">
+      <button id="startBtn" class="primary-button">Começar percurso</button>
+      <div class="control-grid">
+        <button id="leftBtn" class="control-button" disabled><span>↶</span>Virei à esquerda</button>
+        <button id="rightBtn" class="control-button" disabled><span>↷</span>Virei à direita</button>
+        <button id="stepBtn" class="control-button" disabled><span>＋</span>Registrar passo</button>
+        <button id="markBtn" class="control-button" disabled><span>⚑</span>Marcar local</button>
+        <button id="floorUpBtn" class="control-button" disabled><span>↑</span>Subi de andar</button>
+        <button id="floorDownBtn" class="control-button" disabled><span>↓</span>Desci de andar</button>
+        <button id="undoBtn" class="control-button" disabled><span>↩</span>Desfazer movimento</button>
+        <button id="finishBtn" class="control-button danger" disabled><span>■</span>Finalizar percurso</button>
+      </div>
+      <div id="sensorMessage" class="sensor-message">O registro automático de passos depende dos sensores e das permissões do aparelho. Você também pode registrar passos manualmente.</div>
+    </section>
+
+    <details class="saved-section" open>
+      <summary>Pontos salvos neste aparelho <span id="markerCount" class="count-pill">0</span></summary>
+      <div id="markerList" class="marker-list"><p class="empty-state">Ainda não há pontos marcados.</p></div>
+    </details>
+
+    <section class="data-actions" aria-label="Dados do mapa">
+      <button id="exportBtn" class="secondary-button">Exportar cópia JSON</button>
+      <label class="secondary-button import-label" for="importInput">Importar cópia</label>
+      <input id="importInput" type="file" accept="application/json,.json" hidden>
+      <button id="clearBtn" class="text-button">Apagar dados deste aparelho</button>
+    </section>
+
+    <footer class="disclaimer">
+      <strong>Protótipo experimental:</strong> a posição é aproximada, não é GPS interno nem sistema de emergência. Confirme autorização para mapear o local e não use durante atendimento ou ao caminhar em áreas de risco.
+    </footer>
+  </main>
+  <dialog id="markerDialog" class="marker-dialog">
+    <form method="dialog" id="markerForm">
+      <h2>Marcar este local</h2>
+      <p>Escolha um nome fácil de reconhecer. O ponto será salvo no pavimento atual.</p>
+      <label for="markerName">Nome do local</label>
+      <input id="markerName" maxlength="60" required placeholder="Ex.: corredor da área vermelha">
+      <label for="markerColor">Cor</label>
+      <select id="markerColor"><option value="#d2a84a">Dourado</option><option value="#dc5b57">Vermelho</option><option value="#5f91d4">Azul</option><option value="#58a879">Verde</option><option value="#986bc5">Roxo</option></select>
+      <div class="dialog-actions"><button value="cancel" class="secondary-button">Cancelar</button><button id="saveMarkerBtn" value="save" class="primary-button">Salvar ponto</button></div>
+    </form>
+  </dialog>
+  <script src="app.js" defer></script>
+</body>
+</html>
