@@ -1,5 +1,5 @@
 'use strict';
-const CACHE = 'mapa-interno-v5';
+const CACHE = 'mapa-interno-v6';
 const ASSETS = ['./', './index.html', './styles.css', './app.js', './manifest.webmanifest', './icon.svg', './favicon.ico', './app-icon-192.png', './app-icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
