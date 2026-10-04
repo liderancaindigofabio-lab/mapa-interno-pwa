@@ -49,7 +49,7 @@ jobs:
           script: |
             set +e
             adb install android/app/build/outputs/apk/debug/app-debug.apk
-            adb shell am start -n br.com.huse.mapainterno.diagnostic/br.com.huse.mapainterno.MainActivity
+            adb shell am start -n br.com.huse.mapainterno.fixed/br.com.huse.mapainterno.MainActivity
             sleep 10
             adb shell dumpsys activity activities > /tmp/huse-activities.txt
             adb logcat -d -t 800 > /tmp/huse-logcat.txt

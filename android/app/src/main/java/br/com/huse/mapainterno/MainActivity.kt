@@ -3,8 +3,6 @@ package br.com.huse.mapainterno
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -13,7 +11,6 @@ import android.hardware.SensorManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.WindowManager
 import android.webkit.JavascriptInterface
 import android.webkit.ValueCallback
@@ -22,11 +19,7 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.Button
 import android.widget.FrameLayout
-import android.widget.LinearLayout
-import android.widget.ScrollView
-import android.widget.TextView
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewClientCompat
 import org.json.JSONObject
@@ -52,22 +45,6 @@ class MainActivity : Activity(), SensorEventListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        installCrashRecorder()
-        val crashPrefs = getSharedPreferences(CRASH_PREFS, MODE_PRIVATE)
-        val previousCrash = crashPrefs.getString(CRASH_KEY, null)
-        if (!previousCrash.isNullOrBlank()) {
-            crashPrefs.edit().remove(CRASH_KEY).commit()
-            showStartupDiagnostic("O app encerrou na abertura anterior. Diagnóstico salvo:", previousCrash)
-            return
-        }
-        try {
-            initializeApp()
-        } catch (error: Throwable) {
-            showStartupDiagnostic("Falha ao inicializar o aplicativo:", Log.getStackTraceString(error))
-        }
-    }
-
-    private fun initializeApp() {
         requestedOrientation = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         window.statusBarColor = android.graphics.Color.rgb(18, 59, 50)
         window.navigationBarColor = android.graphics.Color.rgb(18, 59, 50)
@@ -119,53 +96,6 @@ class MainActivity : Activity(), SensorEventListener {
         }
         setContentView(webView, FrameLayout.LayoutParams(-1, -1))
         webView.loadUrl("https://appassets.androidplatform.net/assets/www/index.html")
-    }
-
-    private fun installCrashRecorder() {
-        val previousHandler = Thread.getDefaultUncaughtExceptionHandler()
-        Thread.setDefaultUncaughtExceptionHandler { thread, error ->
-            try {
-                getSharedPreferences(CRASH_PREFS, MODE_PRIVATE).edit()
-                    .putString(CRASH_KEY, Log.getStackTraceString(error)).commit()
-            } catch (_: Throwable) {
-            }
-            if (previousHandler != null) previousHandler.uncaughtException(thread, error)
-            else android.os.Process.killProcess(android.os.Process.myPid())
-        }
-    }
-
-    private fun showStartupDiagnostic(title: String, details: String) {
-        val root = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(24, 32, 24, 24)
-            setBackgroundColor(android.graphics.Color.WHITE)
-        }
-        val heading = TextView(this).apply {
-            text = title
-            textSize = 20f
-            setTextColor(android.graphics.Color.rgb(18, 59, 50))
-        }
-        val scroll = ScrollView(this)
-        val diagnostic = TextView(this).apply {
-            text = details
-            textSize = 13f
-            setTextColor(android.graphics.Color.DKGRAY)
-            textIsSelectable = true
-            setPadding(0, 20, 0, 20)
-        }
-        scroll.addView(diagnostic)
-        val copy = Button(this).apply {
-            text = "Copiar diagnóstico"
-            setOnClickListener {
-                val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-                clipboard.setPrimaryClip(ClipData.newPlainText("Diagnóstico do app", details))
-                text = "Diagnóstico copiado"
-            }
-        }
-        root.addView(heading)
-        root.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
-        root.addView(copy)
-        setContentView(root)
     }
 
     override fun onResume() {
@@ -352,8 +282,6 @@ class MainActivity : Activity(), SensorEventListener {
     }
 
     companion object {
-        private const val CRASH_PREFS = "startup_diagnostics"
-        private const val CRASH_KEY = "last_uncaught_exception"
         private const val REQUEST_RECOGNITION = 701
         private const val REQUEST_FILE = 702
         private const val REQUEST_SAVE_JSON = 703

@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
@@ -16,8 +17,8 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix '.diagnostic'
-            versionNameSuffix '-diagnostic'
+            applicationIdSuffix '.fixed'
+            versionNameSuffix '-fixed'
         }
         release {
             minifyEnabled false
