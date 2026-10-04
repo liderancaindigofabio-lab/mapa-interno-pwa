@@ -228,7 +228,7 @@
     const count = areaVertices.length;
     el('finishAreaBtn').disabled = count < 3;
     el('finishAreaBtn').textContent = count < 3 ? `Marque ${3-count} ponto${3-count===1?'':'s'}` : `Nomear área (${count} pontos)`;
-    el('mapHint').textContent = 'Toque no mapa para marcar o contorno da área';
+    el('mapHint').textContent = 'Arraste ou use pinça para explorar; toque para marcar o contorno da área';
   }
   function undo() {
     if (areaVertices && areaVertices.length) { areaVertices.pop(); renderAreaTools(); drawMap(); setStatus('Último ponto do contorno removido'); return; }
@@ -413,7 +413,6 @@
   }
   function distanceBetween(a,b) { return Math.hypot(a.x-b.x,a.y-b.y); }
   function onPointerDown(event) {
-    if (areaVertices) return;
     canvas.setPointerCapture(event.pointerId);
     activePointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
     if (activePointers.size === 1) gesture = { type:'pan', lastX:event.clientX, lastY:event.clientY, moved:false };
@@ -422,7 +421,7 @@
     }
   }
   function onPointerMove(event) {
-    if (!activePointers.has(event.pointerId) || areaVertices) return;
+    if (!activePointers.has(event.pointerId)) return;
     activePointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
     if (activePointers.size >= 2) {
       const pts=[...activePointers.values()];
