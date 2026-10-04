@@ -7,7 +7,7 @@ Aplicativo web progressivo (PWA) para desenhar um mapa esquemático de percursos
 - Registra passos estimados pelo acelerômetro, quando o aparelho e o navegador permitem; há também um botão para registrar passos manualmente.
 - Converte passos em deslocamento aproximado em um mapa esquemático e permite calibrar a passada caminhando por uma distância conhecida.
 - Acompanha giros pela orientação do celular quando o sensor está disponível; botões permitem corrigir curvas de 90 graus. Também registra subida/descida, desfaz o último movimento e pausa/finaliza.
-- Permite desenhar áreas fechadas marcando seus vértices no mapa e dando nome e cor, além de salvar pontos individuais.
+- Permite desenhar áreas fechadas marcando seus vértices no mapa e dando nome e cor; durante o desenho, também dá para arrastar e usar pinça para explorar a grade sem perder o contorno. Salva pontos individuais.
 - Toque no mapa para corrigir a posição atual; pontos nomeados com cores para marcar locais.
 - Três pavimentos genéricos, com posição aproximada mantida ao trocar de nível.
 - Guarda os dados apenas no armazenamento local do navegador; permite exportar e importar cópia JSON.
@@ -28,7 +28,7 @@ Aplicativo web progressivo (PWA) para desenhar um mapa esquemático de percursos
 2. Para usar sensores e instalar como app, publique em hospedagem HTTPS autorizada ou rode um servidor local. O navegador pedirá permissão de movimento quando o percurso começar.
 3. Para calibrar, escolha um corredor reto de distância conhecida (de preferência 10 m ou mais), pressione “Calibrar passada”, informe a distância, inicie e caminhe até o fim; revise a contagem automática/manual e salve.
 4. Pressione “Começar percurso”; o mapa acompanha passos e giros estimados. Corrija curvas nos botões e toque para reposicionar se notar desvio. Use “Subi/Desci” ao trocar de pavimento.
-5. “Desenhar área” permite tocar os cantos do contorno e salvar um nome/cor. “Tela cheia” abre a vista do mapa; arraste para passear, use pinça ou +/− para zoom e “Minha posição” para voltar. Nos pontos salvos, “Ver” centraliza o mapa. Exporte JSON para cópia.
+5. “Desenhar área” permite tocar os cantos do contorno e salvar um nome/cor. Durante o traçado, arraste para explorar a grade e use pinça ou +/− para zoom sem perder os vértices já marcados. “Tela cheia” abre a vista do mapa; arraste para passear, use pinça ou +/− para zoom e “Minha posição” para voltar. Nos pontos salvos, “Ver” centraliza o mapa. Exporte JSON para cópia.
 
 ## Privacidade e segurança
 
