@@ -5,7 +5,7 @@
 
     <application
         android:allowBackup="false"
-        android:label="Mapa Interno HUSE — Correção"
+        android:label="Mapa Interno HUSE — Diagnóstico"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="false">
         <activity

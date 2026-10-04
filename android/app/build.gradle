@@ -16,8 +16,8 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix '.debugfix1'
-            versionNameSuffix '-debugfix1'
+            applicationIdSuffix '.diagnostic'
+            versionNameSuffix '-diagnostic'
         }
         release {
             minifyEnabled false
