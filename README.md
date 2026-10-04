@@ -26,8 +26,9 @@ Aplicativo web progressivo (PWA) para desenhar um mapa esquemático de percursos
 
 1. Abra `index.html` em um navegador para testar controles e mapa; sem HTTPS/localhost, o navegador pode bloquear sensores e instalação PWA.
 2. Para usar sensores e instalar como app, publique em hospedagem HTTPS autorizada ou rode um servidor local. O navegador pedirá permissão de movimento quando o percurso começar.
-3. Pressione “Começar percurso”, caminhe com o celular, registre curvas e mudanças de pavimento. Se o passo automático falhar, use “Registrar passo”; toque no mapa para corrigir.
-4. Use “Marcar local” para nomear áreas. Exporte JSON para manter uma cópia.
+3. Para calibrar, escolha um corredor reto de distância conhecida (de preferência 10 m ou mais), pressione “Calibrar passada”, informe a distância, inicie e caminhe até o fim; revise a contagem automática/manual e salve.
+4. Pressione “Começar percurso”; o mapa acompanha passos e giros estimados. Corrija curvas nos botões e toque para reposicionar se notar desvio. Use “Subi/Desci” ao trocar de pavimento.
+5. “Desenhar área” permite tocar os cantos do contorno e salvar um nome/cor. “Tela cheia” abre a vista do mapa; arraste para passear, use pinça ou +/− para zoom e “Minha posição” para voltar. Nos pontos salvos, “Ver” centraliza o mapa. Exporte JSON para cópia.
 
 ## Privacidade e segurança
 
